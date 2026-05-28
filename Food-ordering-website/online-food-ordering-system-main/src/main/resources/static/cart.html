@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Your Cart</title>
+  <meta charset="UTF-8" />
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Your Cart</h1>
+  <div id="cart-items"></div>
+  <h2 id="total">Total: ₹0</h2>
+
+  <button onclick="placeOrder()">✅ Place Order</button>
+  <button onclick="clearCart()">❌ Clear Cart</button>
+
+  <script>
+    const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartDiv = document.getElementById("cart-items");
+    let total = 0;
+
+    cartItems.forEach((item, index) => {
+      total += item.price;
+      const div = document.createElement("div");
+      div.innerHTML = `<strong>${item.name}</strong> - ₹${item.price}`;
+      cartDiv.appendChild(div);
+    });
+
+    document.getElementById("total").innerText = `Total: ₹${total}`;
+
+    function placeOrder() {
+      const orderData = {
+        items: cartItems,
+        total: total
+      };
+
+      fetch('/api/orders', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(orderData)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert("✅ Order placed!");
+          localStorage.removeItem("cart");
+          window.location.href = "menu.html";
+        } else {
+          alert("❌ Failed to place order.");
+        }
+      });
+    }
+
+    function clearCart() {
+      localStorage.removeItem("cart");
+      alert("Cart cleared");
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>
